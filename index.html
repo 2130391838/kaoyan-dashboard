@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大学毕业生去向趋势看板 2015—2027</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#fff; --ink:#1a1f2b; --ink2:#5a6472; --ink3:#8b95a3;
+    --line:#e6eaf0; --grad:#1F3864; --kaoyan:#2E75B6; --master:#1E7145;
+    --tuimian:#8FB94D; --abroad:#ED7D31; --guokao:#C00000; --ratio:#7030A0;
+    --other:#c9cdd4;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1440px;margin:0 auto;padding:28px 24px 60px}
+
+  header.hd{margin-bottom:22px}
+  .hd h1{font-size:26px;margin:0 0 8px;letter-spacing:.5px}
+  .hd .sub{color:var(--ink2);font-size:13.5px;line-height:1.7}
+  .hd .tags{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+  .tag{background:#e9eef7;color:#31507f;font-size:12px;padding:4px 10px;border-radius:999px}
+  .tag.warn{background:#fdf0e6;color:#a35a10}
+
+  .card{background:var(--card);border-radius:14px;box-shadow:0 1px 2px rgba(20,30,50,.05),0 6px 20px rgba(20,30,50,.04);padding:18px 20px}
+  .card h2{font-size:15px;margin:0 0 2px;font-weight:650}
+  .card .cap{font-size:12px;color:var(--ink3);margin:0 0 10px}
+
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:18px}
+  .kpi{background:var(--card);border-radius:14px;padding:14px 16px;box-shadow:0 1px 2px rgba(20,30,50,.05),0 6px 20px rgba(20,30,50,.04);border-top:3px solid var(--grad)}
+  .kpi .k{font-size:12px;color:var(--ink3);margin-bottom:6px}
+  .kpi .v{font-size:23px;font-weight:680;letter-spacing:-.3px}
+  .kpi .v small{font-size:12.5px;font-weight:500;color:var(--ink2);margin-left:2px}
+  .kpi .d{font-size:12px;margin-top:5px;color:var(--ink2)}
+  .kpi .d .up{color:#1E7145}
+  .kpi .d .down{color:#C00000}
+  .kpi.k1{border-top-color:var(--grad)} .kpi.k2{border-top-color:var(--kaoyan)}
+  .kpi.k3{border-top-color:var(--guokao)} .kpi.k4{border-top-color:var(--abroad)}
+  .kpi.k5{border-top-color:var(--master)} .kpi.k6{border-top-color:var(--ratio)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .full{margin-bottom:16px}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:6px 0 4px}
+  .lg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);cursor:pointer;user-select:none;padding:2px 4px;border-radius:6px}
+  .lg:hover{background:#f2f5fa}
+  .lg.off{opacity:.35}
+  .lg i{width:14px;height:3px;border-radius:2px;display:inline-block}
+  .lg i.dash{background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px)!important}
+  .lg b{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .ax{font-size:11px;fill:#8b95a3}
+  .gl{stroke:#eef1f6;stroke-width:1}
+  .zline{stroke:#d5dbe4;stroke-width:1}
+
+  .tip{position:fixed;pointer-events:none;background:rgba(24,32,46,.94);color:#fff;font-size:12px;
+       padding:9px 11px;border-radius:9px;line-height:1.65;opacity:0;transition:opacity .12s;z-index:99;max-width:260px;
+       box-shadow:0 8px 24px rgba(0,0,0,.18)}
+  .tip b{font-weight:600}
+  .tip .row{display:flex;justify-content:space-between;gap:14px;white-space:nowrap}
+  .tip .row span:last-child{font-variant-numeric:tabular-nums}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{padding:7px 8px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  th:first-child,td:first-child{text-align:left}
+  thead th{background:#1F3864;color:#fff;font-weight:600;font-size:12px;position:sticky;top:0}
+  thead th:first-child{border-radius:8px 0 0 0} thead th:last-child{border-radius:0 8px 0 0}
+  tbody tr:nth-child(even){background:#fafbfd}
+  tbody tr.hi{background:#fff4eb;font-weight:650}
+  tbody tr.hi2{background:#eef7f0;font-weight:650}
+  td.dim{color:var(--ink3)}
+  .tblwrap{max-height:520px;overflow:auto;border-radius:10px;border:1px solid var(--line)}
+
+  .insights{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .ins{display:flex;gap:12px;background:var(--card);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(20,30,50,.05),0 6px 20px rgba(20,30,50,.04)}
+  .ins .n{flex:0 0 26px;height:26px;border-radius:8px;background:#1F3864;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:600}
+  .ins h3{margin:0 0 4px;font-size:13.5px}
+  .ins p{margin:0;font-size:12.5px;color:var(--ink2);line-height:1.7}
+
+  footer{margin-top:24px;font-size:11.5px;color:var(--ink3);line-height:1.9}
+  footer code{background:#eef1f6;padding:1px 5px;border-radius:4px;font-size:11px}
+  @media (max-width:1100px){
+    .kpis{grid-template-columns:repeat(3,1fr)}
+    .grid2,.insights{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="tip" id="tip"></div>
+<div class="wrap">
+
+  <header class="hd">
+    <h1>大学毕业生去向趋势看板 · 2015—2027</h1>
+    <div class="sub">
+      本科生毕业后的几条主赛道：<b>考研（统考）</b>、<b>保研（推免）</b>、<b>国内升学</b>、<b>出国留学</b>、<b>考公</b>、<b>直接就业</b>。
+      本页把各条赛道的绝对规模、竞争烈度与占毕业生总数的比例放在一起看，回答一个问题：<i>今年的“卷”，到底卷在哪一条路上。</i>
+    </div>
+    <div class="tags">
+      <span class="tag">数据口径：教育部公布口径 + 已公开的行业统计</span>
+      <span class="tag warn">★ 标记为估算值（推免人数、部分年份留学人数）</span>
+      <span class="tag">最后更新：2026-11-13（含 2027 年考研、2027 年国考数据）</span>
+    </div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>① 大盘：毕业生规模与增速</h2>
+      <p class="cap">柱＝全国普通高校毕业生规模（万人）；线＝同比增速。2027 年为预估值。</p>
+      <div class="legend" id="lg-grads"></div>
+      <div id="c-grads"></div>
+    </div>
+    <div class="card">
+      <h2>② 每 100 名毕业生，有几人在挤同一条赛道</h2>
+      <p class="cap">各赛道人数 ÷ 当年毕业生规模，消除大盘增长的影响，直接看“热度”。</p>
+      <div class="legend" id="lg-heat"></div>
+      <div id="c-heat"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>③ 三条赛道的绝对规模</h2>
+      <p class="cap">考研报名、国考过审、出国留学（万人）。注意：考研与国考报名均含往届生，非纯应届。★为估算。</p>
+      <div class="legend" id="lg-abs"></div>
+      <div id="c-abs"></div>
+    </div>
+    <div class="card">
+      <h2>④ 升学内部：扩招、推免挤压与统考难度</h2>
+      <p class="cap">左轴＝统考报录比（考研报名 ÷ 统考录取名额）；右轴＝推免占硕士招生比例。</p>
+      <div class="legend" id="lg-up"></div>
+      <div id="c-up"></div>
+    </div>
+  </div>
+
+  <div class="card full">
+    <h2>⑤ 毕业生去向大盘结构（占比，%）</h2>
+    <p class="cap">国内升学＝硕士招生人数（含推免）；出国留学＝出国留学人数；其余为就业 / 灵活就业 / 待业等。考公上岸规模过小（国考约 3—4 万/年），不单独成块。</p>
+    <div class="legend" id="lg-stack"></div>
+    <div id="c-stack"></div>
+  </div>
+
+  <div class="card full">
+    <h2>⑥ 总表：全部数据一屏看全</h2>
+    <p class="cap">★ 为估算；空白表示官方尚未公布。“统考报录比”＝考研报名人数 ÷（硕士录取人数 − 推免人数）。</p>
+    <div class="tblwrap"><table id="tbl"></table></div>
+  </div>
+
+  <div style="height:16px"></div>
+
+  <div class="insights" id="insights"></div>
+
+  <footer>
+    <b>数据来源</b>：教育部历年《全国教育事业发展统计公报》与教育部新闻发布（毕业生规模、硕士招生、出国留学、考研报名）；
+    国家公务员局年度考试录用公告及报名资格审查结果（国考过审人数）；推免人数为第三方机构按高校公示名单统计的估算值。<br>
+    <b>口径提醒</b>：① 毕业生规模为“预计数”，与统计公报的“实际毕业生数”略有差异；② 考研报名、国考报名均含往届生与社会人员，
+    与应届毕业生人数不可直接相减；③ 推免人数、2021 与 2024 年出国留学人数为估算，趋势可信、绝对值有 ±5% 误差；
+    ④ 2026 / 2027 年硕士招生与留学人数尚未公布，图中留空。
+  </footer>
+</div>
+
+<script>
+/* ======================= 数据 ======================= */
+const YEARS = [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027];
+
+const grads  = [749,765,795,820,834,874,909,1076,1158,1179,1222,1270,1300];
+const gradsEst = [0,0,0,0,0,0,0,0,0,0,0,0,1];
+const kaoyan = [164.9,177,201,238,290,341,377,457,474,438,388,343,347];
+const master = [57.06,58.98,72.22,76.25,81.13,99.05,105.07,110.35,114.84,118.57,122.68,null,null];
+const tuimian= [6.8,7.1,8.7,9.2,9.7,11.9,13.5,14.0,15.5,16.0,18.5,null,null];
+const abroad = [52.37,54.45,60.84,66.21,70.35,45.09,52.4,66.1,68.4,70.0,57.06,null,null];
+const abroadEst = [0,0,0,0,0,0,1,0,0,1,0,0,0];
+const guokao = [140.9,139.5,148.6,166.0,138.0,143.7,157.6,212.3,259.7,303.3,341.6,371.8,345.0];
+
+const pct = (a,i)=> a[i]==null? null : a[i]/grads[i]*100;
+const heatKaoyan = YEARS.map((_,i)=> pct(kaoyan,i));
+const heatGuokao = YEARS.map((_,i)=> pct(guokao,i));
+const heatAbroad = YEARS.map((_,i)=> pct(abroad,i));
+const heatMaster = YEARS.map((_,i)=> pct(master,i));
+const tongkaoRatio = YEARS.map((_,i)=> (master[i]&&tuimian[i]) ? kaoyan[i]/(master[i]-tuimian[i]) : null);
+const tuimianShare = YEARS.map((_,i)=> (master[i]&&tuimian[i]) ? tuimian[i]/master[i]*100 : null);
+const otherShare = YEARS.map((_,i)=> master[i] ? 100 - master[i]/grads[i]*100 - (abroad[i]?abroad[i]/grads[i]*100:0) : null);
+
+/* ======================= 工具 ======================= */
+const fmt = (v,d=1)=> v==null? "—" : (Math.round(v*10**d)/10**d).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:d});
+const tip = document.getElementById('tip');
+function showTip(html,e){
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const pad=14, w=tip.offsetWidth, h=tip.offsetHeight;
+  let x=e.clientX+pad, y=e.clientY-h-12;
+  if(x+w>innerWidth-8) x=e.clientX-w-pad;
+  if(y<8) y=e.clientY+18;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+}
+function hideTip(){ tip.style.opacity=0; }
+
+function niceNum(r){
+  const e=Math.floor(Math.log10(r)); const f=r/Math.pow(10,e);
+  let nf; if(f<=1)nf=1; else if(f<=2)nf=2; else if(f<=2.5)nf=2.5; else if(f<=5)nf=5; else nf=10;
+  return nf*Math.pow(10,e);
+}
+function ticks(min,max,count=5){
+  if(min===max){ min-=1; max+=1; }
+  const step = niceNum((max-min)/count);
+  const lo = Math.floor(min/step)*step, hi = Math.ceil(max/step)*step;
+  const out=[]; for(let v=lo; v<=hi+step*1e-6; v+=step) out.push(Math.round(v*1e6)/1e6);
+  return {lo,hi,t:out,step};
+}
+
+/* ======================= 折线/柱状通用渲染 ======================= */
+function renderChart(host, cfg){
+  host.innerHTML='';
+  const W = Math.max(host.clientWidth||640, 420);
+  const H = cfg.h||330;
+  const m = {l: cfg.leftTitle?54:48, r: cfg.rightTitle?54:16, t:14, b:36};
+  const pw = W-m.l-m.r, ph = H-m.t-m.b, n = YEARS.length, bw = pw/n;
+  const cx = i => m.l + (i+0.5)*bw;
+
+  // 轴范围
+  const vis = s => s.visible!==false;
+  function dom(axis){
+    const vs=[];
+    cfg.series.forEach(s=>{ if(!vis(s)||(s.axis||'l')!==axis) return;
+      s.data.forEach(v=>{ if(v!=null) vs.push(v); }); });
+    if(!vs.length) return ticks(0,1,4);
+    let lo=Math.min(...vs), hi=Math.max(...vs);
+    if(cfg.zeroBase && axis==='l'){
+      const t=ticks(0, hi*1.06, 5);
+      return {lo:0, hi:t.hi, t:t.t.filter(v=>v>=0)};
+    }
+    const pad=(hi-lo)*0.12 || 1;
+    return ticks(lo-pad, hi+pad, 5);
+  }
+  const hasR = cfg.series.some(sr=> (sr.axis==='r') && sr.visible!==false);
+  const L = cfg.left||dom('l');
+  const R = hasR ? (cfg.right||dom('r')) : null;
+
+  const yl = v => m.t + ph - (v-L.lo)/(L.hi-L.lo)*ph;
+  const yr = v => R ? (m.t + ph - (v-R.lo)/(R.hi-R.lo)*ph) : yl(v);
+
+  let s='';
+  s+=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img">`;
+
+  // 网格 + 左轴
+  L.t.forEach(v=>{
+    const y=yl(v);
+    s+=`<line class="gl" x1="${m.l}" y1="${y.toFixed(1)}" x2="${W-m.r}" y2="${y.toFixed(1)}"/>`;
+    s+=`<text class="ax" x="${m.l-8}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${fmt(v,cfg.lDec??0)}${cfg.lUnit||''}</text>`;
+  });
+  if(R) R.t.forEach(v=>{
+    s+=`<text class="ax" x="${W-m.r+8}" y="${(yr(v)+3.5).toFixed(1)}" text-anchor="start">${fmt(v,cfg.rDec??0)}${cfg.rUnit||''}</text>`;
+  });
+
+  // 零线
+  if(cfg.zeroBase && L.lo<0) s+=`<line class="zline" x1="${m.l}" y1="${yl(0)}" x2="${W-m.r}" y2="${yl(0)}"/>`;
+
+  // x 轴
+  s+=`<line class="zline" x1="${m.l}" y1="${m.t+ph}" x2="${W-m.r}" y2="${m.t+ph}"/>`;
+  YEARS.forEach((y,i)=>{
+    const show = cfg.xSkip? (i%cfg.xSkip===0 || i===n-1) : true;
+    if(!show) return;
+    s+=`<text class="ax" x="${cx(i).toFixed(1)}" y="${H-14}" text-anchor="middle">${String(y).slice(2)}</text>`;
+  });
+  s+=`<text class="ax" x="${m.l+pw/2}" y="${H-1}" text-anchor="middle" style="fill:#a8b0bd">年份（20xx）</text>`;
+
+  // 轴标题
+  if(cfg.leftTitle) s+=`<text class="ax" x="10" y="${m.t+ph/2}" text-anchor="middle" transform="rotate(-90 10 ${m.t+ph/2})" style="fill:#a8b0bd">${cfg.leftTitle}</text>`;
+  if(cfg.rightTitle&&R) s+=`<text class="ax" x="${W-8}" y="${m.t+ph/2}" text-anchor="middle" transform="rotate(90 ${W-8} ${m.t+ph/2})" style="fill:#a8b0bd">${cfg.rightTitle}</text>`;
+
+  // 系列
+  cfg.series.filter(vis).forEach(sr=>{
+    const isR = sr.axis==='r';
+    const Y = isR? yr : yl;
+    if(sr.type==='bar'){
+      const base = Y(Math.max(L.lo,0));
+      sr.data.forEach((v,i)=>{
+        if(v==null) return;
+        const y=Y(v), w=Math.min(bw*0.5, 30);
+        const fill = (sr.estMask&&sr.estMask[i]) ? sr.color+'55' : sr.color;
+        s+=`<rect x="${(cx(i)-w/2).toFixed(1)}" y="${Math.min(y,base).toFixed(1)}" width="${w.toFixed(1)}"
+             height="${Math.abs(base-y).toFixed(1)}" rx="3" fill="${fill}" ${sr.estMask&&sr.estMask[i]?'stroke="'+sr.color+'" stroke-dasharray="3 2"':''}/>`;
+      });
+    } else {
+      let d='', started=false;
+      sr.data.forEach((v,i)=>{
+        if(v==null){ started=false; return; }
+        const px=cx(i), py=Y(v);
+        d += (started? 'L':'M') + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+        started=true;
+      });
+      s+=`<path d="${d}" fill="none" stroke="${sr.color}" stroke-width="${sr.w||2.2}"
+            stroke-linejoin="round" stroke-linecap="round"
+            ${sr.dash?'stroke-dasharray="5 4"':''} opacity="${sr.dim?0.75:1}"/>`;
+      sr.data.forEach((v,i)=>{
+        if(v==null) return;
+        const est = sr.estMask&&sr.estMask[i];
+        s+=`<circle cx="${cx(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="${est?3.2:3.6}"
+             fill="${est?'#fff':sr.color}" stroke="${sr.color}" stroke-width="1.6"/>`;
+      });
+    }
+  });
+
+  // 标注线
+  (cfg.marks||[]).forEach(mk=>{
+    const x=cx(mk.i);
+    s+=`<line x1="${x.toFixed(1)}" y1="${m.t}" x2="${x.toFixed(1)}" y2="${m.t+ph}"
+          stroke="${mk.color||'#c9ced8'}" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>`;
+    const anchor = mk.right? 'end':'start', dx = mk.right? -6:6;
+    s+=`<text x="${(x+dx).toFixed(1)}" y="${(m.t+11+(mk.dy||0))}" text-anchor="${anchor}" font-size="10.5"
+          fill="${mk.color||'#8b95a3'}" font-weight="600">${mk.text}</text>`;
+  });
+
+  // 命中区
+  YEARS.forEach((y,i)=>{
+    s+=`<rect class="hit" x="${(m.l+i*bw).toFixed(1)}" y="${m.t}" width="${bw.toFixed(1)}" height="${ph}" fill="transparent" data-i="${i}"/>`;
+  });
+  s+=`</svg>`;
+  host.innerHTML = s;
+
+  host.querySelectorAll('.hit').forEach(r=>{
+    const i=+r.dataset.i;
+    r.addEventListener('mousemove', e=>{
+      let h=`<b>${YEARS[i]} 年</b>`;
+      cfg.series.filter(vis).forEach(sr=>{
+        const v=sr.data[i]; if(v==null) return;
+        h+=`<div class="row"><span>${sr.name}</span><span>${fmt(v,sr.dec??1)}${sr.unit||''}</span></div>`;
+      });
+      (cfg.extraTip||(()=>''))(i) && (h+=(cfg.extraTip||(()=>''))(i));
+      showTip(h,e);
+    });
+    r.addEventListener('mouseleave', hideTip);
+  });
+}
+
+/* ======================= 图例（可点击开关） ======================= */
+function legend(hostId, series, onToggle){
+  const host=document.getElementById(hostId);
+  host.innerHTML='';
+  series.forEach(sr=>{
+    const b=document.createElement('div');
+    b.className='lg'+(sr.visible===false?' off':'');
+    b.innerHTML = sr.type==='bar'
+      ? `<b style="background:${sr.color}"></b>${sr.name}`
+      : `<i style="background:${sr.color}" class="${sr.dash?'dash':''}"></i>${sr.name}`;
+    if(sr.dash) b.style.color = sr.color, b.querySelector('i').style.background = sr.color;
+    b.onclick=()=>{ sr.visible = sr.visible===false; b.classList.toggle('off', sr.visible===false); onToggle(); };
+    host.appendChild(b);
+  });
+}
+
+/* ======================= 100% 堆叠图 ======================= */
+function renderStack(host, cfg){
+  host.innerHTML='';
+  const W=Math.max(host.clientWidth||1000,500), H=cfg.h||300;
+  const m={l:44,r:14,t:14,b:36};
+  const pw=W-m.l-m.r, ph=H-m.t-m.b, n=YEARS.length, bw=pw/n;
+  const y=v=>m.t+ph-(v/100)*ph;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+    <defs><pattern id="hatch" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#e8ecf2" stroke-width="4"/></pattern></defs>`;
+  [0,20,40,60,80,100].forEach(v=>{
+    s+=`<line class="gl" x1="${m.l}" y1="${y(v)}" x2="${W-m.r}" y2="${y(v)}"/>`;
+    s+=`<text class="ax" x="${m.l-8}" y="${y(v)+3.5}" text-anchor="end">${v}%</text>`;
+  });
+  YEARS.forEach((yr0,i)=>{
+    const x=m.l+i*bw+bw*0.16, w=bw*0.68;
+    const hasData = cfg.parts.some(pt=> pt.data[i]!=null);
+    if(!hasData){
+      s+=`<rect x="${x.toFixed(1)}" y="${m.t}" width="${w.toFixed(1)}" height="${ph}"
+           fill="url(#hatch)" stroke="#dfe4ec" stroke-dasharray="4 3"/>`;
+      s+=`<text x="${(x+w/2).toFixed(1)}" y="${(m.t+ph/2).toFixed(1)}" text-anchor="middle" font-size="10" fill="#9aa3b2">待公布</text>`;
+      s+=`<text class="ax" x="${(x+w/2).toFixed(1)}" y="${H-14}" text-anchor="middle">${String(yr0).slice(2)}</text>`;
+      s+=`<rect class="hit" x="${(m.l+i*bw).toFixed(1)}" y="${m.t}" width="${bw.toFixed(1)}" height="${ph}" fill="transparent" data-i="${i}"/>`;
+      return;
+    }
+    let acc=0;
+    cfg.parts.forEach(pt=>{
+      const v=pt.data[i]; if(v==null) return;
+      const y0=y(acc), y1=y(acc+v);
+      s+=`<rect x="${x.toFixed(1)}" y="${y1.toFixed(1)}" width="${w.toFixed(1)}" height="${(y0-y1).toFixed(1)}"
+           fill="${pt.color}" opacity=".92"/>`;
+      if(v>6) s+=`<text x="${(x+w/2).toFixed(1)}" y="${((y0+y1)/2+3.5).toFixed(1)}" text-anchor="middle"
+           font-size="10" fill="${pt.labelColor||'#fff'}" font-weight="600">${v.toFixed(1)}%</text>`;
+      acc+=v;
+    });
+    s+=`<text class="ax" x="${(x+w/2).toFixed(1)}" y="${H-14}" text-anchor="middle">${String(yr0).slice(2)}</text>`;
+    s+=`<rect class="hit" x="${(m.l+i*bw).toFixed(1)}" y="${m.t}" width="${bw.toFixed(1)}" height="${ph}" fill="transparent" data-i="${i}"/>`;
+  });
+  s+=`<text class="ax" x="${m.l+pw/2}" y="${H-1}" text-anchor="middle" style="fill:#a8b0bd">年份（20xx）</text>`;
+  s+=`</svg>`;
+  host.innerHTML=s;
+  host.querySelectorAll('.hit').forEach(r=>{
+    const i=+r.dataset.i;
+    r.addEventListener('mousemove', e=>{
+      let h=`<b>${YEARS[i]} 年</b><div class="row"><span>毕业生总数</span><span>${fmt(grads[i],0)} 万</span></div>`;
+      cfg.parts.forEach(pt=>{
+        if(pt.data[i]==null) return;
+        h+=`<div class="row"><span>${pt.name}</span><span>${pt.data[i].toFixed(1)}%（${fmt(pt.data[i]*grads[i]/100,1)} 万）</span></div>`;
+      });
+      showTip(h,e);
+    });
+    r.addEventListener('mouseleave', hideTip);
+  });
+}
+
+/* ======================= ① 大盘 ======================= */
+const sGrads = [
+  {name:'毕业生规模（万人）', color:'#1F3864', type:'bar', data:grads, estMask:gradsEst, dec:0, unit:' 万'},
+  {name:'同比增速（右轴 %）', color:'#ED7D31', axis:'r', data:YEARS.map((_,i)=> i? (grads[i]/grads[i-1]-1)*100 : null), dec:1, unit:'%'},
+];
+legend('lg-grads', sGrads, ()=> drawGrads());
+function drawGrads(){
+  renderChart(document.getElementById('c-grads'), {
+    h:300, series:sGrads, leftTitle:'万人', rightTitle:'同比增速', rDec:1, rUnit:'%',
+    left:{lo:0, hi:1600, t:[0,400,800,1200,1600]},
+    right:{lo:-4, hi:20, t:[-4,2,8,14,20]},
+    zeroBase:true,
+    marks:[{i:12, text:'2027 预估', color:'#c98b4a', right:true}]
+  });
+}
+/* ======================= ② 热度 ======================= */
+const sHeat=[
+  {name:'考研报名 / 毕业生', color:'#2E75B6', data:heatKaoyan, dec:1, unit:'%'},
+  {name:'国考过审 / 毕业生', color:'#C00000', data:heatGuokao, dec:1, unit:'%'},
+  {name:'国内升学 / 毕业生', color:'#1E7145', data:heatMaster, dec:1, unit:'%'},
+  {name:'出国留学 / 毕业生', color:'#ED7D31', data:heatAbroad, dec:1, unit:'%', estMask:abroadEst},
+];
+legend('lg-heat', sHeat, ()=> drawHeat());
+function drawHeat(){
+  renderChart(document.getElementById('c-heat'), {
+    h:300, series:sHeat, lDec:0, lUnit:'%', zeroBase:false,
+    marks:[{i:11, text:'2026 国考首超考研', color:'#C00000', right:true}]
+  });
+}
+/* ======================= ③ 绝对规模 ======================= */
+const sAbs=[
+  {name:'考研报名（万人）', color:'#2E75B6', data:kaoyan, dec:1, unit:' 万'},
+  {name:'国考过审（万人）', color:'#C00000', data:guokao, dec:1, unit:' 万'},
+  {name:'出国留学（万人）', color:'#ED7D31', data:abroad, dec:1, unit:' 万', estMask:abroadEst},
+  {name:'硕士录取（万人）', color:'#1E7145', data:master, dec:2, unit:' 万'},
+];
+legend('lg-abs', sAbs, ()=> drawAbs());
+function drawAbs(){
+  renderChart(document.getElementById('c-abs'), {
+    h:300, series:sAbs, leftTitle:'万人', zeroBase:true,
+    marks:[{i:8, text:'2023 峰值 474 万', color:'#7a8699'},{i:11, text:'26 年国考反超', color:'#C00000', right:true, dy:15}]
+  });
+}
+/* ======================= ④ 升学内部 ======================= */
+const sUp=[
+  {name:'统考报录比（左轴，:1）', color:'#7030A0', data:tongkaoRatio, dec:2, unit:' : 1'},
+  {name:'推免占硕士招生比例（右轴 %）', color:'#8FB94D', axis:'r', dash:true, data:tuimianShare, dec:1, unit:'%'},
+];
+legend('lg-up', sUp, ()=> drawUp());
+function drawUp(){
+  renderChart(document.getElementById('c-up'), {
+    h:300, series:sUp, leftTitle:'统考报录比（:1）', rightTitle:'推免占比', lDec:1, rDec:1, rUnit:'%',
+    left:{lo:3, hi:5, t:[3,3.5,4,4.5,5]},
+    right:{lo:10, hi:16, t:[10,11.5,13,14.5,16]},
+    marks:[{i:9, text:'2023 统考最难 4.8:1', color:'#7030A0'}]
+  });
+}
+/* ======================= ⑤ 结构 ======================= */
+const stackParts=[
+  {name:'国内升学（含推免）', color:'#1E7145', data:heatMaster},
+  {name:'出国留学', color:'#ED7D31', data:heatAbroad},
+  {name:'其他（就业 / 待业等）', color:'#c9cdd4', labelColor:'#5a6472', data:otherShare},
+];
+legend('lg-stack', stackParts.map(p=>({...p, type:'bar'})), ()=> drawStack());
+function drawStack(){ renderStack(document.getElementById('c-stack'), {h:290, parts:stackParts}); }
+
+/* ======================= KPI ======================= */
+(function(){
+  const last=12, prevC=11;
+  const items=[
+    {c:'k1', k:'高校毕业生（2027届，预估）', v:'1,300', u:'万人', d:`较 2015 届 ${fmt(grads[0],0)} 万 +${fmt((grads[last]/grads[0]-1)*100,0)}%`},
+    {c:'k2', k:'考研报名（2027）', v:'347', u:'万人',
+     d:`<span class="up">同比 +1.2%</span>　较 2023 峰值 −27%`},
+    {c:'k3', k:'国考过审（2027）', v:'345', u:'万人',
+     d:`<span class="down">同比 −7.2%</span>　报录比 97:1`},
+    {c:'k4', k:'出国留学（2025，最新）', v:'57.06', u:'万人',
+     d:`<span class="down">较 2019 峰值 −19%</span>`},
+    {c:'k5', k:'硕士录取（2025，最新）', v:'122.68', u:'万人',
+     d:`较 2015 年 ${fmt(master[0],1)} 万 <span class="up">+115%</span>`},
+    {c:'k6', k:'统考报录比（2025）', v:'3.7', u:': 1',
+     d:`2023 年峰值 4.8:1 → <span class="up">难度回落 23%</span>`},
+  ];
+  document.getElementById('kpis').innerHTML = items.map(i=>
+    `<div class="kpi ${i.c}"><div class="k">${i.k}</div><div class="v">${i.v}<small>${i.u}</small></div><div class="d">${i.d}</div></div>`
+  ).join('');
+})();
+
+/* ======================= 总表 ======================= */
+(function(){
+  const head=['年份','毕业生<br>（万人）','考研报名<br>（万人）','硕士录取<br>（万人）','推免<br>（万人★）',
+              '统考录取<br>（万人）','统考报录比','出国留学<br>（万人）','国考过审<br>（万人）','升学率','出国率','考研热度'];
+  let h='<thead><tr>'+head.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>';
+  YEARS.forEach((y,i)=>{
+    const cls = y===2023? 'hi' : y===2027? 'hi2' : '';
+    const tk = (master[i]&&tuimian[i])? master[i]-tuimian[i] : null;
+    h+=`<tr class="${cls}">
+      <td><b>${y}</b></td>
+      <td>${fmt(grads[i],0)}${gradsEst[i]?'<span style="color:#c98b4a">★</span>':''}</td>
+      <td>${fmt(kaoyan[i],1)}</td>
+      <td>${master[i]==null?'<span class="dim">—</span>':fmt(master[i],2)}</td>
+      <td>${tuimian[i]==null?'<span class="dim">—</span>':fmt(tuimian[i],1)}</td>
+      <td>${tk==null?'<span class="dim">—</span>':fmt(tk,2)}</td>
+      <td>${tongkaoRatio[i]==null?'<span class="dim">—</span>':fmt(tongkaoRatio[i],2)}</td>
+      <td>${abroad[i]==null?'<span class="dim">—</span>':fmt(abroad[i],1)+(abroadEst[i]?'★':'')}</td>
+      <td>${fmt(guokao[i],1)}</td>
+      <td>${master[i]==null?'<span class="dim">—</span>':heatMaster[i].toFixed(1)+'%'}</td>
+      <td>${abroad[i]==null?'<span class="dim">—</span>':heatAbroad[i].toFixed(1)+'%'}</td>
+      <td>${heatKaoyan[i].toFixed(1)}%</td>
+    </tr>`;
+  });
+  document.getElementById('tbl').innerHTML = h+'</tbody>';
+})();
+
+/* ======================= 结论 ======================= */
+(function(){
+  const ins=[
+    {t:'大盘：13 年多出 550 万毕业生', p:'毕业生从 2015 届 749 万增至 2027 届约 1,300 万，累计 +74%，年均约 +4.4%。所有“赛道拥挤”的前提，是分母越来越大。'},
+    {t:'考研：从九年连涨到三年连降，2027 低位企稳', p:'报名人数 2015 年 164.9 万 → 2023 年 474 万见顶（+188%），随后三年连降至 343 万，2027 年小幅回升至 347 万（+1.2%）。热度已从峰值回落约 27%。'},
+    {t:'保研：真正的“隐形扩招受益者”', p:'推免占硕士招生比例从约 12% 升至约 15%。硕士招生虽从 57 万扩到 123 万，但统考能分到的名额增速更慢，这正是考研人数下降、难度却没怎么降的原因。'},
+    {t:'统考难度：2023 年见顶，随后缓释但仍高于 2015 年', p:'统考报录比 2015 年 3.3:1 → 2023 年 4.8:1（历史最难）→ 2025 年回落至 3.7:1。难度确实缓解，但没有回到十年前的水平。'},
+    {t:'出国：唯一一条“萎缩”的路', p:'出国留学 2019 年 70.35 万见顶，疫情腰斩至 45 万，2025 年 57.06 万，占毕业生比例从 8.4% 掉到 4.7%——几乎减半，是六条去向里唯一占比持续下滑的。'},
+    {t:'考公：接棒考研成为最热赛道', p:'国考过审 140.9 万 → 2026 年 371.8 万，占毕业生比例 18.8% → 29.3%；2026 年首次超过考研报名人数，2027 年因缩招（3.57 万）回落至 345 万，仍与考研基本持平、竞争比高达 97:1。'},
+    {t:'国内升学率其实没怎么变', p:'国内升学（硕士录取）占毕业生比例：2015 年 7.6% → 2025 年 10.0%。扩招几乎被毕业生增长吃掉，读研的“相对机会”只是温和改善，谈不上通道变宽。'},
+    {t:'整体判断：不是路变少了，是路在重新分配', p:'约 85% 的毕业生最终仍进入就业市场。考研、考公、留学三条路的此消彼长，本质是同一批人在存量通道里重新排队——2027 年的关键词是“考研止跌、考公退烧、留学未复”，回归理性而非回暖。'},
+  ];
+  document.getElementById('insights').innerHTML = ins.map((x,i)=>
+    `<div class="ins"><div class="n">${i+1}</div><div><h3>${x.t}</h3><p>${x.p}</p></div></div>`
+  ).join('');
+})();
+
+/* ======================= 启动 & 自适应 ======================= */
+function drawAll(){ drawGrads(); drawHeat(); drawAbs(); drawUp(); drawStack(); }
+drawAll();
+let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(drawAll,180); });
+</script>
+</body>
+</html>
