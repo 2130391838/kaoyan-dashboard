@@ -10,3 +10,10 @@ build/
 *.log
 .idea/
 .vscode/
+
+# 本地临时截图
+m*.png
+iframe_test.html
+diag.html
+.chrome-tmp/
+.ctmp*/
